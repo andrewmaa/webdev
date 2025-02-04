@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Assignment #2</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div id='holder'>
+            <div id='info'>
+                <h1>Everything is Awesome</h1>
+                <div id='time'>
+                    <p>The time is current XX:YYam -- Good Day!</p>
+                    <p>Your lucky numbers are 1, 2, and 3</p>
+                </div>
+            </div>
+
+            <div id='figure'>
+                <!-- <img id='head' src='images/heads/head1.png'>
+                <img id='body' src='images/bodies/body1.png'>
+            </div>
+        </div> -->
+    </body>
+    <script>
+        // randomize the head and body images 
+        // create a random int between 1 and 6
+        let headNum = parseInt(Math.random() * 6 + 1);
+        let bodyNum = parseInt(Math.random() * 6 + 1);
+
+        document.write(`<img id='head' src='images/heads/head${headNum}.png'>`);
+        document.write(`<img id='body' src='images/bodies/body${bodyNum}.png'>`);
+        document.write("</div>");
+        document.write("</div>");
+
+        document.getElementById("head").src=`images/heads/head${headNum}.png'>`;
+    </script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,61 @@
+* {
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    /* making html and body 100% of the browser width and height */
+    width: 100vw;
+    height: 100vh;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#holder {
+    background-image: url(images/backgrounds/afternoon.png);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+
+    position: relative;
+
+    /* holder 100% of the width and height of body */
+    width: 100%;
+    height: 100%;
+}
+
+#info {
+    position: absolute;
+    top: 50px;
+    left: 10%;
+}
+
+#figure {
+    position: absolute;
+    bottom: 0px;
+    right: 20%;
+
+    display: flex;
+    flex-direction: column; /* establishes the main-axis */
+    align-items: center; /* by default, flex items will stretch */
+
+    /* border: 10px solid blue; */
+}
+
+h1 { 
+    color: white;
+    font-size: 2.5em;
+    filter: drop-shadow(1px 1px 3px black);
+}
+
+#time {
+    background-color: rgba(256, 256, 256, .5);
+    padding: 20px;
+    border-radius: 20px;
+    width: fit-content;
+}
+
+/* #head{ border: 5px solid red;} */
+
+/* #body{ border: 5px solid red;} */
+
+

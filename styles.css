@@ -1,0 +1,126 @@
+@font-face {
+    font-family: 'Geist Mono';
+    src: url('GeistMono.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    font-variation-settings: 'wght' 400;
+}
+  
+@font-face {
+    font-family: 'Geist';
+    src: url('Geist.ttf') format('truetype');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+    font-variation-settings: 'wght' 400;
+}
+
+html, body {
+    font-family: 'Geist Mono', Arial, Helvetica, sans-serif;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+#spline-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -1;
+    pointer-events: none;
+}
+
+spline-viewer {
+    width: 100%;
+    height: 100%;
+}
+
+.content-overlay {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.container-fluid {
+    flex: 1;
+}
+
+h1 {
+    font-size: 48px;
+    font-weight: 400;
+    margin: 10px;
+    font-family: 'Geist Mono', Arial, Helvetica, sans-serif;
+}
+
+.button-container {
+    padding: 10px;
+}
+
+.button {
+    font-family: 'Geist Mono', Arial, Helvetica, sans-serif;
+    display: flex;
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    color: #ffffff;
+    text-decoration: none;
+    text-transform: uppercase;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    font-size: 12px;
+}
+
+.icon {
+    width: 50px;
+    height: 50px;
+    transition: transform 0.2s ease-in-out;
+}
+
+.button:hover .icon {
+    transform: scale(1.1);
+}
+
+#title {
+    color: #ffffff;
+    text-align: left;
+    font-family: 'Geist Mono', Arial, Helvetica, sans-serif;
+}
+
+footer {
+    text-align: center;
+    padding: 20px;
+    color: #ffffff;
+    margin-top: auto;
+}
+
+@media (min-width: 481px) and (max-width: 960px) {
+    .col-md-2-4 {
+        flex: 0 0 20%;
+        max-width: 20%;
+    }
+    .button {
+        gap: 0.5rem;
+    }
+}
+
+@media (min-width: 961px) {
+    .custom-col {
+        flex: 0 0 10%;
+        max-width: 10%;
+    }
+    .button {
+        gap: 0.25rem;
+    }
+}
+
+/* Bootstrap responsive breakpoints are handled by the grid classes */
