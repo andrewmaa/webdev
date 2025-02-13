@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Assignment #2</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <div id='holder'>
+            <div id='info'>
+                    <h1>Everything is Awesome</h1>
+                <div id='time'>
+                    <p>The time is current XX:YYam -- Good Day!</p>
+                    <p>Your lucky numbers are 1, 2, and 3</p>
+                </div>
+            </div>
+            <div id='figure'>
+                <img id='head' src='images/heads/head1.png'>
+                <img id='body' src='images/bodies/body1.png'>
+            </div>
+        </div>
+    </body>
+    <script>
+        const heads = ['head1.png', 'head2.png', 'head3.png', 'head4.png', 'head5.png', 'head6.png'];
+        const bodies = ['body1.png', 'body2.png', 'body3.png', 'body4.png', 'body5.png', 'body6.png'];
+        const words = ['Awesome', 'Fantastic', 'Fabulous', 'Superb', 'Perfect', 'Brilliant', 'Coming up Roses'];
+        let date = new Date();
+        let hour = date.getHours();
+        let minute = date.getMinutes();
+        
+        // Format time properly with leading zeros
+        let displayHour = hour % 12 || 12;
+        let displayMinute = minute.toString().padStart(2, '0');
+        let amPm = hour < 12 ? 'am' : 'pm';
+
+        // Randomly select head and body from arrays
+        let randomHead = heads[Math.floor(Math.random() * heads.length)];
+        let randomBody = bodies[Math.floor(Math.random() * bodies.length)];
+
+        let word = words[parseInt(Math.random() * words.length)];
+
+        
+        // set greeting based on the time of day
+        let greeting;
+        if (hour >= 0 && hour < 6) {
+            greeting = "Good Night!";
+            document.write(`<style>#holder { background-image: url('images/backgrounds/night.png'); }</style>`);
+        } else if (hour >= 6 && hour < 12) {
+            greeting = "Good Morning!";
+            document.write(`<style>#holder { background-image: url('images/backgrounds/morning.png'); }</style>`);
+        } else if (hour >= 12 && hour < 18) {
+            greeting = "Good Afternoon!";
+            document.write(`<style>#holder { background-image: url('images/backgrounds/afternoon.png'); }</style>`);
+        } else {
+            greeting = "Good Evening!";
+            document.write(`<style>#holder { background-image: url('images/backgrounds/evening.png'); }</style>`);
+        }
+
+       
+        
+
+        // Update the second paragraph to display lucky numbers
+
+        document.querySelector("p").innerHTML = `The time is currently ${displayHour}:${displayMinute}${amPm} -- ${greeting}`;
+        document.querySelector("h1").innerHTML = `Everything is ${word}!`;
+        // Update the image sources with randomly selected head and body
+        document.getElementById("head").src = `images/heads/${randomHead}`;
+        document.getElementById("body").src = `images/bodies/${randomBody}`;
+
+        //prompt user for a number greater than or equal to 3
+        let number = prompt('Enter a number greater than or equal to 3')
+        
+        while (isNaN(number) || number < 3) {
+            number = prompt('Enter a number greater than or equal to 3')
+        }
+
+         // Generate three unique random numbers between 1 and user's input number
+        let luckyNumbers = [];
+        while(luckyNumbers.length < 3) {
+            let randomNum = Math.floor(Math.random() * number) + 1;
+            if (!luckyNumbers.includes(randomNum)) {
+                luckyNumbers.push(randomNum);
+            }
+        }
+
+        let [luckyNumber1, luckyNumber2, luckyNumber3] = luckyNumbers;
+        document.querySelectorAll("p")[1].innerHTML = `Your lucky numbers are ${luckyNumber1}, ${luckyNumber2}, and ${luckyNumber3}`;
+
+    </script>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

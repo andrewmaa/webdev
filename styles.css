@@ -61,7 +61,7 @@ h1 {
 }
 
 .button-container {
-    padding: 10px;
+    padding: 20px;
 }
 
 .button {
@@ -75,7 +75,7 @@ h1 {
     text-decoration: none;
     text-transform: uppercase;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     width: 100%;
     font-size: 12px;
 }
