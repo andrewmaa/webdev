@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>Macro #3</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            #container {
+                display: flex; /* two columns: scene + description */
+                align-items: flex-start; /* align items at the start of the cross axis */
+            }
+
+            #scene {
+                width: 80%;
+                margin-right: 30px;
+                position: relative; /* first stacking layer */
+                border: 1px solid black;
+            }
+
+            #info {
+                width: 50%;
+            }
+
+            #background {
+                /* position: relative; bg stacks on top of scene */
+                width: 100%;
+                display: block; /* to make sure that the img takes up the entire container */
+            }
+
+            #grasses { /* group the grass together */
+                position: absolute;
+                width: 100%;
+                bottom: 0px; /* place at the bottom of the scene */
+                display: flex; /* three columns of grass */
+                justify-content: space-between;
+            }
+
+            .grass {
+                width: calc(100%/3);
+            }
+
+            .grass:hover {
+                background-color: rgba(255, 255, 0, .5);
+            }
+
+            #play_again {
+                display: none;
+            }
+
+            #pokedex {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                margin-top: 20px;
+                width: 100%;
+                background-color: rgba(255, 255, 255, .5);
+                padding: 20px;
+                border-radius: 10px;
+            }
+
+            #pokemon_list {
+                width: 100%;
+                max-width: 800px;
+            }
+
+            .pokemon-row {
+                display: flex;
+                align-items: center;
+                margin: 10px 0;
+                gap: 20px;
+            }
+
+            .pokemon-img {
+                width: 50px;
+                height: 50px;
+            }
+
+            .pokemon-name {
+                width: 100px;
+            }
+
+            .pokemon-count {
+                width: 50px;
+                text-align: center;
+            }
+
+            .histogram-bar {
+                height: 20px;
+                min-width: 30px;
+                transition: width 0.3s ease;
+                display: flex;
+                align-items: center;
+                padding-left: 5px;
+            }
+            .pikachu-bar {
+                background-color: #fbf851;
+            }
+            .bulbasaur-bar {
+                background-color: #78C850;
+            }   
+            .charmander-bar {
+                background-color: #F67D2B;
+            }
+            .eevee-bar {
+                background-color: #c29e7a;
+            }
+            .squirtle-bar {
+                background-color: #56c8e4;
+            }
+            #completion-message {
+                color: green;
+                font-weight: bold;
+                margin-top: 10px;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="container">
+            <div id="scene">
+                <img id="background" src="images/environment_forestbackground.png">
+                <div id="grasses">
+                    <img class="grass" id="grass1" src="images/grass.png">
+                    <img class="grass" id="grass2" src="images/grass.png">
+                    <img class="grass" id="grass3" src="images/grass.png">  
+                </div>
+            </div>
+            
+            <div id="info">
+                <h1>Gotta Catch 'Em All!</h1>
+                <p>Your goal in this game is to earn as many Pokeballs as possible while catching a variety of Pokemon along the way.</p>
+                <p>To play, simply click on one of the three grass clumps in the forest. Behind one of those grass clumps is a Pokemon that can be caught. Behind another grass clump are two free Pokeballs that you can use to try again, and behind the last grass clump is nothing.</p>
+                <p>Note that each time you pick a grass clump you will be using one of your Pokeballs, and when you run out the game is over!</p>
+                <h2 id="progress">Your progress so far...</h2>
+                <p>Pokeballs left: <span id="pokeballs_left">5</span></p>
+                <p>Pokemon caught: <span id="pokemon_caught">0</span></p>
+                <button id="play_again">Play again</button>
+            </div>
+            
+        </div>
+        <div id="pokedex">
+            <h1>Pokedex</h1>
+            <div id="pokemon_list">
+                <div class="pokemon-row">
+                    <img class="pokemon-img" src="images/pikachu.png" alt="Pikachu">
+                    <span class="pokemon-name">Pikachu</span>
+                    <span class="pokemon-count" id="pikachu-count">0</span>
+                    <div class="histogram-bar" id="pikachu-bar">&nbsp;</div>
+                </div>
+                <div class="pokemon-row">
+                    <img class="pokemon-img" src="images/bulbasaur.png" alt="Bulbasaur">
+                    <span class="pokemon-name">Bulbasaur</span>
+                    <span class="pokemon-count" id="bulbasaur-count">0</span>
+                    <div class="histogram-bar" id="bulbasaur-bar">&nbsp;</div>
+                </div>
+                <div class="pokemon-row">
+                    <img class="pokemon-img" src="images/charmander.png" alt="Charmander">
+                    <span class="pokemon-name">Charmander</span>
+                    <span class="pokemon-count" id="charmander-count">0</span>
+                    <div class="histogram-bar" id="charmander-bar">&nbsp;</div>
+                </div>
+                <div class="pokemon-row">
+                    <img class="pokemon-img" src="images/eevee.png" alt="Eevee">
+                    <span class="pokemon-name">Eevee</span>
+                    <span class="pokemon-count" id="eevee-count">0</span>
+                    <div class="histogram-bar" id="eevee-bar">&nbsp;</div>
+                </div>
+                <div class="pokemon-row">
+                    <img class="pokemon-img" src="images/squirtle.png" alt="Squirtle">
+                    <span class="pokemon-name">Squirtle</span>
+                    <span class="pokemon-count" id="squirtle-count">0</span>
+                    <div class="histogram-bar" id="squirtle-bar">&nbsp;</div>
+                </div>
+            </div>
+            <p id="completion-message">Congratulations! You've caught at least one of each Pokemon!</p>
+        </div>
+        <script>
+            // DOM queries
+            const grass1 = document.getElementById('grass1');            
+            const grass2 = document.getElementById('grass2');            
+            const grass3 = document.getElementById('grass3');
+            const progress = document.getElementById('progress');
+            const pokeballs_left = document.getElementById('pokeballs_left');
+            const pokemon_caught = document.getElementById('pokemon_caught');
+            const play_again = document.getElementById('play_again');
+            const completion_message = document.getElementById('completion-message');
+            const pokedex = document.getElementById('pokedex');
+            
+            // possible pokemon
+            const pokemon = [
+                {name:'Pikachu', image:'images/pikachu.png', count: 0}, 
+                {name:'Bulbasaur', image:'images/bulbasaur.png', count: 0},
+                {name:'Charmander', image:'images/charmander.png', count: 0},
+                {name:'Eevee', image:'images/eevee.png', count: 0},
+                {name:'Squirtle', image:'images/squirtle.png', count: 0}
+            ];
+
+            // Game state variables
+            let pokeballsLeftCounter = 5;
+            let pokemonCaughtCounter = 0;
+            let roundActive = false;
+
+            // Function to update the histogram bars
+            function updateHistogram() {
+                pokemon.forEach(p => {
+                    const bar = document.getElementById(`${p.name.toLowerCase()}-bar`);
+                    // Each Pokemon adds 20% to its bar width (5% minimum)
+                    const width = 5 + (p.count * 5);
+                    bar.style.width = `${width}%`;
+                    bar.classList.add(`${p.name.toLowerCase()}-bar`);
+                });
+            }
+
+            // Function to check if player has caught at least one of each Pokemon
+            function checkCompletion() {
+                const hasAllPokemon = pokemon.every(p => p.count > 0);
+                completion_message.style.display = hasAllPokemon ? 'block' : 'none';
+                return hasAllPokemon;
+            }
+
+            // Function to handle grass click
+            function handleGrassClick(grassElement) {
+                // Check if round is active or if no pokeballs left
+                if (roundActive || pokeballsLeftCounter <= 0) {
+                    return;
+                }
+
+                // Start round and use a pokeball
+                roundActive = true;
+                pokeballsLeftCounter--;
+
+                // Generate three random outcomes and shuffle them
+                let outcomes = [0, 1, 2]; // 0=nothing, 1=pokeballs, 2=pokemon
+                outcomes.sort(() => Math.random() - 0.5);
+                
+                // Get all grass elements
+                const allGrass = [grass1, grass2, grass3];
+                
+                // Find index of clicked grass
+                const clickedIndex = allGrass.indexOf(grassElement);
+                
+                // Handle clicked grass normally
+                if (outcomes[clickedIndex] === 0) {
+                    // Nothing
+                    grassElement.src = '';
+                    progress.innerText = 'Nothing here!';
+                }
+                else if (outcomes[clickedIndex] === 1) {
+                    // Pokeballs
+                    grassElement.src = 'images/pokeballs.png';
+                    progress.innerText = 'You found 2 Pokeballs!';
+                    pokeballsLeftCounter += 2;
+                }
+                else {
+                    // Pokemon
+                    const foundPokemon = pokemon[Math.floor(Math.random() * pokemon.length)];
+                    grassElement.src = foundPokemon.image;
+                    progress.innerText = `You found a ${foundPokemon.name}!`;
+                    
+                    // Update Pokemon count
+                    foundPokemon.count++;
+                    pokemonCaughtCounter++;
+                    
+                    // Update count display
+                    const countElement = document.getElementById(`${foundPokemon.name.toLowerCase()}-count`);
+                    countElement.textContent = foundPokemon.count;
+                    
+                    // Update histogram and check completion
+                    updateHistogram();
+                    checkCompletion();
+                }
+
+                // Reveal other grass patches with reduced opacity
+                allGrass.forEach((grass, index) => {
+                    if (index !== clickedIndex) {
+                        if (outcomes[index] === 0) {
+                            grass.src = '';
+                        } else if (outcomes[index] === 1) {
+                            grass.src = 'images/pokeballs.png';
+                        } else {
+                            const missedPokemon = pokemon[Math.floor(Math.random() * pokemon.length)];
+                            grass.src = missedPokemon.image;
+                        }
+                        grass.style.opacity = '0.5';
+                    }
+                });
+
+                // Update displays
+                pokeballs_left.innerText = pokeballsLeftCounter;
+                pokemon_caught.innerText = pokemonCaughtCounter;
+
+                // Check if game is over
+                if (pokeballsLeftCounter <= 0) {
+                    progress.innerText = 'Game Over! You ran out of Pokeballs!';
+                    play_again.style.display = 'none';
+                } else {
+                    play_again.style.display = 'block';
+                }
+            }
+
+            // Add click handlers to grass patches
+            grass1.onclick = () => handleGrassClick(grass1);
+            grass2.onclick = () => handleGrassClick(grass2);
+            grass3.onclick = () => handleGrassClick(grass3);
+
+            // Play again handler
+            play_again.onclick = function() {
+                // Reset grass images
+                grass1.src = 'images/grass.png';
+                grass1.style.opacity = '1';
+                grass2.src = 'images/grass.png';
+                grass2.style.opacity = '1';
+                grass3.src = 'images/grass.png';
+                grass3.style.opacity = '1';
+                
+                // Hide play again button and reset round state
+                play_again.style.display = 'none';
+                roundActive = false;
+                
+                // Reset progress message
+                progress.innerText = 'Your progress so far...';
+            }
+
+            // Initialize histogram on page load
+            updateHistogram();
+        
+        </script>
+    </body>
+</html>
