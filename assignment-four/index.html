@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <title>Design Your own Hogwarts!</title>
+    <style type="text/css">
+      .container {
+        display: flex;
+        flex-direction: row;
+        gap: 20px;
+        width: 100%;
+      }
+      #canvas {
+        width: 320px;
+        height: 320px;
+        background-color: #fff;
+        border: 1px solid #000;
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      #tilecontainer {
+        flex: 1;
+        height: 320px;
+        overflow-y: auto;
+        border: 1px solid #ccc;
+        padding: 10px;
+        display: flex;
+        flex-wrap: wrap;
+        align-content: flex-start;
+        gap: 5px;
+      }
+
+      .tile {
+        width: 32px;
+        height: 32px;
+        box-sizing: border-box;
+        border: 2px solid transparent;
+        cursor: pointer;
+      }
+
+      .tile:hover {
+        border: 2px solid #ff0000;
+        
+      }
+
+      .selected {
+        border: 2px solid #ff0000;
+      }
+
+      .cell {
+        width: 32px;
+        height: 32px;
+        position: absolute;
+        cursor: pointer;
+      }
+
+      .cell:hover {
+        outline: 2px solid #ff0000;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>Design Your Own Hogwarts!</h1>
+    <div class="container">
+      <div id="canvas">
+        
+      </div>
+      <div id="tilecontainer">
+        
+      </div>
+    </div>
+
+    <!-- load in the image array file - this makes available a new array of all image filenames that you can use for this project -->
+    <!-- Assets courtesy of Crawl Stone Soup: https://github.com/crawl/tiles -->
+    <script src="image_array.js"></script>
+    
+    <!-- write your code here -->
+
+    <script>
+      canvas = document.getElementById("canvas");
+      tilecontainer = document.getElementById("tilecontainer");
+      for (let row = 0; row < 10; row++) {
+          for (let col = 0; col < 10; col++) {
+              const top = row * 32;
+              const left = col * 32;
+              canvas.innerHTML += `<div class="cell" id="cell_${col}_${row}" style="top: ${top}px; left: ${left}px;"></div>`;
+          }
+      }
+
+      let selectedTile = null;
+
+      for (let i = 0; i < array_library.length; i++) {
+        tile = document.createElement("img");
+        tile.src = array_library[i];
+        tile.classList.add("tile");
+        tilecontainer.appendChild(tile);
+      }
+      tiles = document.querySelectorAll(".tile");
+      for (let i = 0; i < tiles.length; i++) {
+        tiles[i].addEventListener("click", function() {
+          if (selectedTile) {
+            selectedTile.classList.remove("selected");
+          }
+          selectedTile = tiles[i];
+          selectedTile.classList.add("selected");
+        });
+      }
+
+      canvastiles = document.querySelectorAll('#canvas div')
+      for (let i = 0; i < canvastiles.length; i++) {
+        canvastiles[i].addEventListener("click", function(event) {
+          if (selectedTile) {
+            canvastiles[i].style.backgroundImage = `url(${selectedTile.src})`;
+          }
+        });
+      }
+
+    </script>
+
+  </body>
+</html>
