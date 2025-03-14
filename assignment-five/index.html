@@ -1,0 +1,530 @@
+<!DOCTYPE html>
+<html lang="en-us">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Assignment Five</title>
+        <style type="text/css">
+            body {
+                background-image: url("images/corkboard.jpg");
+                background-size: auto;
+                background-repeat: repeat;
+                font-family: 'Arial', sans-serif;
+            }
+            #add {
+                width: 5vw;
+                height: 5svw;
+                position: absolute;
+                bottom: 20px;
+                right: 20px;
+            }
+
+            #add:hover {
+                cursor: pointer;
+                transform: scale(1.1);
+            }
+            
+            #season {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+            }
+
+            .hidden {
+                display: none !important;
+                opacity: 0;
+            }
+
+            #add-item, #edit-item {
+                display: flex;
+                flex-direction: column;
+                width: 40%;
+                background-color: #ffffff;
+                border-radius: 10px;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                padding: 15px;
+                gap: 10px;
+                z-index: 1000;
+            }
+
+            #add-item h2, #edit-item h2 {
+                margin: 0 0 15px 0;
+                font-size: 20px;
+            }
+
+            #add-item input,
+            #add-item select,
+            #edit-item input,
+            #edit-item select {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+
+            #add-item label,
+            #edit-item label {
+                font-weight: normal;
+                margin-bottom: 5px;
+            }
+
+            #description,
+            #edit-description {
+                width: 100%;
+                height: 100px;
+                resize: none;
+            }
+
+            #add-item button,
+            #edit-item button {
+                width: 80px;
+                margin-right: 10px;
+            }
+
+            #activity-container {
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                align-items: center;
+                width: 100%;
+                padding: 20px;
+            }
+
+            #header {
+                text-align: center;
+                color: white;
+                text-shadow: 2px 2px 0px black;
+            }
+
+            .activity {
+                position: relative;
+                width: 200px;
+                padding: 15px;
+                margin: 10px;
+                border-radius: 5px;
+                box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
+                cursor: pointer;
+            }
+
+            .activity.completed {
+                opacity: 0.7;
+                text-decoration: line-through;
+            }
+
+            .activity .complete-checkbox {
+                position: absolute;
+                top: 5px;
+                left: 5px;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                z-index: 2;
+            }
+
+            .spring {
+                background-color: #90EE90;
+            }
+
+            .summer {
+                background-color: #FFD700;
+            }
+
+            .fall {
+                background-color: #FFA500;
+            }
+
+            .winter {
+                background-color: #ADD8E6;
+            }
+
+            #info-panel {
+                display: none;
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.3);
+                z-index: 1000;
+                width: 300px;
+            }
+
+            #info-panel.hidden {
+                display: none;
+            }
+
+            #info-panel:not(.hidden) {
+                display: block;
+            }
+
+            #info-panel h3 {
+                margin-top: 0;
+            }
+
+            #info-panel .completion-status {
+                font-weight: bold;
+                margin: 10px 0;
+            }
+
+            .completion-status.complete {
+                color: green;
+            }
+
+            .completion-status.incomplete {
+                color: red;
+            }
+
+            #close-info {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                cursor: pointer;
+                padding: 5px 10px;
+            }
+
+            .info-divider {
+                border-top: 1px solid #ccc;
+                margin: 10px 0;
+            }
+
+            .edit-button {
+                position: absolute;
+                top: 5px;
+                right: 30px;
+                width: 20px;
+                height: 20px;
+                cursor: pointer;
+                display: none;
+            }
+
+            .activity:hover .edit-button {
+                display: block;
+            }
+        </style>
+    </head>
+    <body>
+        <h1 id="header">Seasonal To-Do List</h1>
+        <select id="season">
+            <option value="all">Show all seasons</option>
+            <option value="summer">Show only Summer items</option>
+            <option value="spring">Show only Spring items</option>
+            <option value="winter">Show only Winter items</option>
+            <option value="fall">Show only Fall items</option>
+            <option value="completed">Show only completed items</option>
+            <option value="uncompleted">Show only uncompleted items</option>
+        </select>
+
+        <div id="activity-container">
+        </div>
+
+        <div id="info-panel" class="hidden">
+            <button id="close-info">Close</button>
+            <h3 id="info-title"></h3>
+            <p id="info-season"></p>
+            <p id="info-description"></p>
+            <p id="info-completion" class="completion-status"></p>
+            <div class="info-divider"></div>
+            <p id="info-created"></p>
+            
+            <p id="info-accessed"></p>
+        </div>
+
+        <form id="add-item" class="hidden">
+            <h2>Add New Item</h2>
+            <label for="title">Title:</label>
+            <input type="text" id="title" name="title">
+            <label for="category">Category:</label>
+            <select id="category">
+                <option value="winter" selected>Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+            </select>
+
+            <label for="description">Description:</label>
+            <textarea id="description" name="description"></textarea>
+
+            <div>
+                <button type="submit" id="add-save">Save</button>
+                <button type="button" id="add-cancel">Cancel</button>
+            </div>
+        </form>
+
+        <form id="edit-item" class="hidden">
+            <h2>Edit Item</h2>
+            <label for="edit-title">Title:</label>
+            <input type="text" id="edit-title" name="edit-title">
+            <label for="edit-category">Category:</label>
+            <select id="edit-category">
+                <option value="winter" selected>Winter</option>
+                <option value="spring">Spring</option>
+                <option value="summer">Summer</option>
+                <option value="fall">Fall</option>
+            </select>
+
+            <label for="edit-description">Description:</label>
+            <textarea id="edit-description" name="edit-description"></textarea>
+
+            <div>
+                <button type="submit" id="edit-save">Update</button>
+                <button type="button" id="edit-cancel">Cancel</button>
+            </div>
+        </form>
+
+        <img src="images/add_button.png" alt="add" id="add">
+        <script>
+            // DOM queries at the start of your script
+            const addButton = document.getElementById('add');
+            const addItemForm = document.getElementById('add-item');
+            const editItemForm = document.getElementById('edit-item');
+            const seasonFilter = document.getElementById('season');
+            const activityContainer = document.getElementById('activity-container');
+            const infoPanel = document.getElementById('info-panel');
+            const closeInfoButton = document.getElementById('close-info');
+
+            // Add form elements
+            const addSaveButton = document.getElementById('add-save');
+            const addCancelButton = document.getElementById('add-cancel');
+            const titleInput = document.getElementById('title');
+            const categorySelect = document.getElementById('category');
+            const descriptionInput = document.getElementById('description');
+
+            // Edit form elements
+            const editSaveButton = document.getElementById('edit-save');
+            const editCancelButton = document.getElementById('edit-cancel');
+            const editTitleInput = document.getElementById('edit-title');
+            const editCategorySelect = document.getElementById('edit-category');
+            const editDescriptionInput = document.getElementById('edit-description');
+
+            let currentEditingItem = null;
+
+            // Filter activities based on season and completion status
+            seasonFilter.onchange = function() {
+                const selectedFilter = this.value;
+                const activities = document.querySelectorAll('.activity');
+                
+                activities.forEach(activity => {
+                    switch(selectedFilter) {
+                        case 'all':
+                            activity.style.removeProperty('display');
+                            break;
+                        case 'completed':
+                            activity.style.display = activity.dataset.completed === "true" ? '' : 'none';
+                            break;
+                        case 'uncompleted':
+                            activity.style.display = activity.dataset.completed === "false" ? '' : 'none';
+                            break;
+                        default: // season filters
+                            activity.style.display = activity.classList.contains(selectedFilter) ? '' : 'none';
+                            break;
+                    }
+                });
+            }
+
+            // Add button click handler
+            addButton.onclick = function(event) {
+                // Clear add form
+                titleInput.value = '';
+                descriptionInput.value = '';
+                categorySelect.value = 'winter';
+                
+                // Show add form
+                addItemForm.classList.remove('hidden');
+                editItemForm.classList.add('hidden'); // Ensure edit form is hidden
+                
+                // Reset filter
+                seasonFilter.value = 'all';
+                seasonFilter.dispatchEvent(new Event('change'));
+            }
+
+            // Close info panel
+            closeInfoButton.onclick = function() {
+                infoPanel.classList.add("hidden");
+            }
+
+            // Add form save
+            addSaveButton.onclick = function(event) {
+                event.preventDefault();
+                
+                // Validation
+                if (!titleInput.value || !descriptionInput.value) {
+                    alert("Please fill out all fields");
+                    return;
+                }
+
+                const currentTime = new Date().toLocaleString();
+                
+                // Create new activity
+                let item = document.createElement("div");
+                item.classList.add("activity");
+                item.classList.add(categorySelect.value);
+                
+                // Set data
+                item.dataset.title = titleInput.value;
+                item.dataset.season = categorySelect.value;
+                item.dataset.description = descriptionInput.value;
+                item.dataset.created = currentTime;
+                item.dataset.lastAccessed = currentTime;
+                item.dataset.completed = "false";
+                
+                // Add checkbox for completion
+                let checkbox = document.createElement("input");
+                checkbox.type = "checkbox";
+                checkbox.classList.add("complete-checkbox");
+                checkbox.onclick = function(e) {
+                    e.stopPropagation();
+                    item.dataset.completed = this.checked;
+                    if (this.checked) {
+                        item.classList.add("completed");
+                    } else {
+                        item.classList.remove("completed");
+                    }
+                };
+                item.appendChild(checkbox);
+                
+                // Add click handler for info panel
+                item.addEventListener("click", function(e) {
+                    if (e.target === checkbox) return;
+                    
+                    // Update last accessed time
+                    const accessTime = new Date();
+                    this.dataset.lastAccessed = accessTime.toLocaleDateString('en-US', {
+                        month: '2-digit',
+                        day: '2-digit',
+                        year: 'numeric',
+                    }) + ', ' + accessTime.toLocaleTimeString('en-US', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                    });
+                    
+                    // Update info panel
+                    document.getElementById('info-title').textContent = this.dataset.title;
+                    document.getElementById('info-season').textContent = `Season: ${this.dataset.season}`;
+                    document.getElementById('info-description').textContent = `${this.dataset.description}`;
+                    document.getElementById('info-completion').textContent = this.dataset.completed === "true" ? "Status: Completed" : "Status: Incomplete";
+                    document.getElementById('info-completion').className = `completion-status ${this.dataset.completed === "true" ? "complete" : "incomplete"}`;
+                    document.getElementById('info-created').textContent = `Created: ${this.dataset.created}`;
+                    document.getElementById('info-accessed').textContent = `Last Accessed: ${this.dataset.lastAccessed}`;
+                        
+                    // Show info panel
+                    infoPanel.classList.remove("hidden");
+                });
+
+                // Create title text node
+                let titleText = document.createElement("p");
+                titleText.textContent = titleInput.value;
+                item.appendChild(titleText);
+                
+                // Create button container for edit and delete
+                let buttonContainer = document.createElement("div");
+                buttonContainer.style.position = "absolute";
+                buttonContainer.style.top = "5px";
+                buttonContainer.style.right = "5px";
+                buttonContainer.style.display = "none";
+                
+                // Add edit button
+                let editButton = document.createElement('img');   
+                editButton.src = "images/edit_button.png";
+                editButton.style.width = "20px";
+                editButton.style.height = "20px";
+                editButton.style.marginRight = "5px";
+                editButton.style.cursor = "pointer";
+                editButton.onclick = function(e) {
+                    e.stopPropagation();
+                    currentEditingItem = item;
+                    
+                    // Populate edit form
+                    editTitleInput.value = item.dataset.title;
+                    editCategorySelect.value = item.dataset.season;
+                    editDescriptionInput.value = item.dataset.description;
+                    
+                    editItemForm.classList.remove('hidden');
+                };
+                
+                // Add delete button
+                let deleteButton = document.createElement('img');   
+                deleteButton.src = "images/delete_button.png";
+                deleteButton.style.width = "20px";
+                deleteButton.style.height = "20px";
+                deleteButton.style.cursor = "pointer";
+                deleteButton.onclick = function(e) {
+                    e.stopPropagation();
+                    item.remove();
+                };
+
+                // Add buttons to container
+                buttonContainer.appendChild(editButton);
+                buttonContainer.appendChild(deleteButton);
+                item.appendChild(buttonContainer);
+
+                // Show buttons on hover
+                item.addEventListener('mouseenter', function() {
+                    buttonContainer.style.display = "block";
+                });
+                
+                item.addEventListener('mouseleave', function() {
+                    buttonContainer.style.display = "none";
+                });
+
+                // Add to container
+                activityContainer.appendChild(item);
+            
+                // Clear and hide form
+                titleInput.value = '';
+                descriptionInput.value = '';
+                addItemForm.classList.add('hidden');
+            }
+
+            // Add form cancel
+            addCancelButton.onclick = function(event) {
+                event.preventDefault();
+                titleInput.value = '';
+                descriptionInput.value = '';
+                addItemForm.classList.add('hidden');
+            }
+
+            // Edit form save
+            editSaveButton.onclick = function(event) {
+                event.preventDefault();
+                
+                if (!editTitleInput.value || !editDescriptionInput.value) {
+                    alert("Please fill out all fields");
+                    return;
+                }
+
+                if (currentEditingItem) {
+                    // Update item data
+                    currentEditingItem.dataset.title = editTitleInput.value;
+                    currentEditingItem.dataset.season = editCategorySelect.value;
+                    currentEditingItem.dataset.description = editDescriptionInput.value;
+                    
+                    // Update visible title
+                    currentEditingItem.querySelector('p').textContent = editTitleInput.value;
+                    
+                    // Update season class
+                    currentEditingItem.className = 'activity ' + editCategorySelect.value;
+                    
+                    // Hide form and reset
+                    editItemForm.classList.add('hidden');
+                    currentEditingItem = null;
+                    
+                    // Reapply filter
+                    seasonFilter.dispatchEvent(new Event('change'));
+                }
+            }
+
+            // Edit form cancel
+            editCancelButton.onclick = function(event) {
+                event.preventDefault();
+                editTitleInput.value = '';
+                editDescriptionInput.value = '';
+                editItemForm.classList.add('hidden');
+                currentEditingItem = null;
+            }
+        </script>
+    </body>
+</html>
