@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Memory</title>
+        <style>
+            body {
+                background-color: black;
+                color: white;
+                font-family: monospace;
+            }
+            .hidden {
+                display: none;
+            }
+            .game_container {
+                width: 100%;
+                max-width: 600px;
+                height: auto;
+                margin: auto;
+                display: grid;
+                gap: 10px;
+                border: 1px solid white;
+                padding: 10px;
+                justify-content: center;
+            }
+            #game_container {
+                display: grid;
+                gap: 10px;
+                padding: 10px;
+                border: 1px solid white;
+                justify-content: center;
+            }
+            .game_item {
+                width: 80px;
+                height: 80px;
+                background-color: transparent;
+                perspective: 1000px;
+                cursor: pointer;
+            }
+            .flip-card-inner {
+                position: relative;
+                width: 100%;
+                height: 100%;
+                text-align: center;
+                transition: transform 0.6s;
+                transform-style: preserve-3d;
+            }
+            .flipped .flip-card-inner {
+                transform: rotateY(180deg);
+            }
+            .matched .flip-card-inner {
+                transform: rotateY(180deg);
+            }
+            .flip-card-front, .flip-card-back {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                backface-visibility: hidden;
+                -webkit-backface-visibility: hidden;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: black;
+                box-sizing: border-box;
+                padding: 5px;
+            }
+            .flip-card-front img, .flip-card-back img {
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+            }
+            .flip-card-back {
+                transform: rotateY(180deg);
+            }
+            #timer {
+                text-align: center;
+                font-size: 200%;
+            }
+            #difficulty_select {
+                margin: 20px 0;
+                text-align: center;
+            }
+            #mode_select {
+                margin: 20px 0;
+                text-align: center;
+            }
+            #high_score_form {
+                margin: 20px 0;
+            }
+            #high_score_form input {
+                padding: 5px;
+                margin-right: 10px;
+            }
+            #high_score_form button {
+                padding: 5px 10px;
+            }
+        </style>
+
+    </head>
+    <body>
+        <div id="panel_start">
+            <h1>Memory Matching Madness!</h1>
+            <p>Play a fast-paced game of memory and try and beat your best time</p>
+            <div id="mode_select">
+                <label>Select Game Mode:</label>
+                <select id="game_mode">
+                    <option value="pokemon">Pokemon</option>
+                    <option value="gems">Steven Universe Gems</option>
+                </select>
+            </div>
+            <div id="difficulty_select">
+                <label>Select Difficulty:</label>
+                <select id="difficulty">
+                    <option value="easy">Easy (3x4)</option>
+                    <option value="medium">Medium (4x5)</option>
+                    <option value="hard">Hard (5x6)</option>
+                </select>
+            </div>
+            <button id="button_start">Start!</button>
+        </div>
+        <div id="panel_game" class="hidden"> <!-- TODO: add class hidden -->
+            <h1>Ready, Set, Match!</h1> 
+            <div id="timer"></div> 
+            <div id="game_container"></div>
+        </div>
+        <div id="panel_gameover" class="hidden"> <!-- TODO: add class hidden -->
+            <h1>Game Over!</h1>
+            <p id="final_time"></p>
+            <div id="high_score_form" class="hidden">
+                <p>Congratulations! You got a new best time!</p>
+                <input type="text" id="player_name" placeholder="Enter your name" required>
+                <button id="save_score">Save Score</button>
+            </div>
+            <p id="best_time"></p>
+            <button id="button_playagain">Play Again</button>
+        </div>
+
+        <!-- audio elements for correct and wrong sounds -->
+        <audio id="wrong">
+            <source src="assignment06_images/wrong.wav" type="audio/wav">
+        </audio>
+        <audio id="correct">
+            <source src="assignment06_images/correct.wav" type="audio/wav">
+        </audio>
+
+
+        <script>
+            // DOM refs
+            const panel_start = document.getElementById('panel_start');
+            const button_start = document.getElementById('button_start');
+            const panel_game = document.getElementById('panel_game');
+            const timer = document.getElementById('timer');
+            const game_container = document.getElementById('game_container');
+            const panel_gameover = document.getElementById('panel_gameover');
+            const correct = document.getElementById('correct'); // correct sound
+            const wrong = document.getElementById('wrong'); // wrong sound
+            const difficultySelect = document.getElementById('difficulty');
+            const highScoreForm = document.getElementById('high_score_form');
+            const playerNameInput = document.getElementById('player_name');
+            const saveScoreButton = document.getElementById('save_score');
+            const gameModeSelect = document.getElementById('game_mode');
+
+            let matches = 0;
+            let timeElapsed = 0;
+            let timeInterval; // variable for setInterval ID
+            let isProcessingClick = false; // flag to prevent click spamming
+            let currentDifficulty = 'easy';
+            let requiredMatches = 6; // Will be updated based on difficulty
+            let currentGameMode = 'pokemon';
+
+            // Pokemon assets
+            const pokemonAssets = ['snorlax.png', 'electrabuzz.png', 'chansey.png', 'oddish.png',
+                'pikachu.png', 'paras.png', 'arcanine.png', 'ponita.png',
+                'venonat.png', 'eggsecute.png', 'machop.png', 'pidgey.png',
+                'psyduck.png', 'tauros.png', 'vulpix.png', 'gloom.png',
+                'krabby.png', 'butterfree.png', 'bulbasaur.png', 'clefairy.png',
+                'koffing.png', 'goldeen.png', 'magikarp.png', 'beedrill.png',
+                'lapras.png', 'meowth.png', 'ekans.png', 'jigglypuff.png',
+                'horsea.png', 'polywog.png', 'sandshrew.png', 'rattata.png',
+                'gengar.png', 'eevee.png', 'bellsprout.png', 'squirtle.png',
+                'seel.png', 'caterpie.png'];
+
+            // Steven Universe assets
+            const gemAssets = [
+                'amethyst.png',
+                'aquamarine.png',
+                'bismuth.png',
+                'blue-diamond.png',
+                'jasper.png',
+                'lapis.png',
+                'pearl.png',
+                'peridot.png',
+                'pink-diamond.png',
+                'ruby.png',
+                'sapphire.png',
+                'steven.png',
+                'topaz.png',
+                'white-diamond.png',
+                'yellow-diamond.png'
+            ];
+
+            // Function to get board dimensions based on difficulty
+            function getBoardDimensions(difficulty) {
+                switch(difficulty) {
+                    case 'easy': return { rows: 3, cols: 4, pairs: 6 };
+                    case 'medium': return { rows: 4, cols: 5, pairs: 10 };
+                    case 'hard': return { rows: 5, cols: 6, pairs: 15 };
+                    default: return { rows: 3, cols: 4, pairs: 6 };
+                }
+            }
+
+            // Function to set up game board
+            function setupGameBoard(difficulty) {
+                const dimensions = getBoardDimensions(difficulty);
+                game_container.style.gridTemplateColumns = `repeat(${dimensions.cols}, 80px)`;
+                game_container.style.gridTemplateRows = `repeat(${dimensions.rows}, 80px)`;
+                game_container.style.width = `${dimensions.cols * 90}px`; // 80px + 10px gap
+                game_container.style.height = `${dimensions.rows * 90}px`; // 80px + 10px gap
+                return dimensions.pairs;
+            }
+
+            // Function to handle high score
+            function handleHighScore(time) {
+                let bestTime = localStorage.getItem('memoryBestTime');
+                let bestPlayer = localStorage.getItem('memoryBestPlayer') || 'Anonymous';
+                
+                if (!bestTime || time < parseInt(bestTime)) {
+                    highScoreForm.classList.remove('hidden');
+                    return true;
+                } else {
+                    document.getElementById('best_time').textContent = `Best Time: ${bestTime} seconds by ${bestPlayer}`;
+                    return false;
+                }
+            }
+
+            // Save score button handler
+            saveScoreButton.onclick = function(event) {
+                event.preventDefault();
+                const playerName = playerNameInput.value.trim() || 'Anonymous';
+                localStorage.setItem('memoryBestTime', timeElapsed);
+                localStorage.setItem('memoryBestPlayer', playerName);
+                highScoreForm.classList.add('hidden');
+                document.getElementById('best_time').textContent = `Best Time: ${timeElapsed} seconds by ${playerName}`;
+            }
+
+            // Function to create click handler for game items
+            function createClickHandler(container, pairValue) {
+                return function(event) {
+                    // Prevent any clicks if game is over
+                    if (!timeInterval) {
+                        return;
+                    }
+
+                    // Prevent click if we're already processing a click
+                    if (isProcessingClick) {
+                        return;
+                    }
+
+                    // Prevent click if the card is already matched
+                    if (container.classList.contains('matched')) {
+                        return;
+                    }
+
+                    // Prevent click if the card is already uncovered
+                    if (container.classList.contains('uncovered')) {
+                        return;
+                    }
+
+                    let allUncovered = document.querySelectorAll('.uncovered');
+                    
+                    // If we already have two cards uncovered, ignore the click
+                    if (allUncovered.length >= 2) {
+                        return;
+                    }
+
+                    // nothing is uncovered
+                    if (allUncovered.length == 0) {
+                        container.classList.add('flipped');
+                        container.classList.add('uncovered');
+                    }
+                    // one thing is already uncovered
+                    else if (allUncovered.length == 1) {
+                        // Prevent clicking the same card twice
+                        if (allUncovered[0] === container) {
+                            return;
+                        }
+
+                        isProcessingClick = true;
+                        container.classList.add('flipped');
+                        container.classList.add('uncovered');
+
+                        // Get the pair value of the first uncovered card
+                        const firstCardValue = allUncovered[0].querySelector('.flip-card-back img').src;
+                        const secondCardValue = container.querySelector('.flip-card-back img').src;
+
+                        // is this a match?
+                        if (firstCardValue === secondCardValue) {
+                            matches += 1;
+                            allUncovered[0].classList.remove('uncovered');
+                            container.classList.remove('uncovered');
+                            allUncovered[0].classList.add('matched');
+                            container.classList.add('matched');
+                            correct.play();
+
+                            // did we find all the matches?
+                            if (matches == requiredMatches) {
+                                // Stop the timer immediately
+                                clearInterval(timeInterval);
+                                timeInterval = null;
+                                
+                                document.getElementById('final_time').textContent = `Your Time: ${timeElapsed} seconds`;
+                                
+                                if (handleHighScore(timeElapsed)) {
+                                    highScoreForm.classList.remove('hidden');
+                                }
+                                
+                                // Small delay before showing game over to let the last match animation complete
+                                setTimeout(() => {
+                                    panel_gameover.classList.remove('hidden');
+                                    panel_game.classList.add('hidden');
+                                }, 600);
+                            }
+                            isProcessingClick = false;
+                        }
+                        else {
+                            wrong.play();
+
+                            // hide the images after a delay 
+                            setTimeout(function() {
+                                // Double check that the game hasn't ended while we were waiting
+                                if (timeInterval) {
+                                    let allUncovered = document.querySelectorAll('.uncovered');
+                                    for (let j = 0; j < allUncovered.length; j++) {
+                                        allUncovered[j].classList.remove('uncovered');
+                                        allUncovered[j].classList.remove('flipped');
+                                    }
+                                }
+                                isProcessingClick = false;
+                            }, 1000);
+                        }
+                    }
+                }
+            }
+
+            button_start.onclick = function(event) {
+                currentDifficulty = difficultySelect.value;
+                currentGameMode = gameModeSelect.value;
+                requiredMatches = getBoardDimensions(currentDifficulty).pairs;
+                
+                panel_start.classList.add('hidden');
+                panel_game.classList.remove('hidden');
+
+                // Clear any existing interval
+                if (timeInterval) {
+                    clearInterval(timeInterval);
+                }
+                
+                // Reset game state
+                matches = 0;
+                timeElapsed = 0;
+                isProcessingClick = false;
+                
+                // Clear and reinitialize the game board
+                game_container.innerHTML = '';
+                initializeGame();
+                
+                timer.innerText = 'Time elapsed: 0';
+                timeInterval = setInterval(function() {
+                    // Only increment if game is still active
+                    if (timeInterval) {
+                        timeElapsed++;
+                        timer.innerText = 'Time elapsed: ' + timeElapsed;
+                    }
+                }, 1000);
+            }
+
+            // Update the initial game setup and play again function
+            function initializeGame() {
+                const numPairs = getBoardDimensions(currentDifficulty).pairs;
+                const pairs = [];
+                
+                // Select the appropriate asset set based on game mode
+                const assetSet = currentGameMode === 'pokemon' ? pokemonAssets : gemAssets;
+                const imagePath = currentGameMode === 'pokemon' ? 'assignment06_images/' : 'assignment06_images/su/';
+                const defaultImage = currentGameMode === 'pokemon' ? 'assignment06_images/pokeball.png' : 'assignment06_images/su/shield.png';
+                
+                // Create a fresh copy of assets for each game
+                const availableAssets = [...assetSet];
+                
+                for (let i = 0; i < numPairs; i++) {
+                    let index = parseInt(Math.random() * availableAssets.length);
+                    pairs.push(availableAssets[index]);
+                    pairs.push(availableAssets[index]);
+                    availableAssets.splice(index, 1);
+                }
+                
+                // Shuffle pairs
+                for (let i = pairs.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [pairs[i], pairs[j]] = [pairs[j], pairs[i]];
+                }
+                
+                setupGameBoard(currentDifficulty);
+                
+                // Create game items
+                for (let i = 0; i < pairs.length; i++) {
+                    // Create main container
+                    let container = document.createElement('div');
+                    container.classList.add('game_item');
+                    
+                    // Create inner container
+                    let inner = document.createElement('div');
+                    inner.classList.add('flip-card-inner');
+                    
+                    // Create front face
+                    let front = document.createElement('div');
+                    front.classList.add('flip-card-front');
+                    let frontImg = document.createElement('img');
+                    frontImg.src = defaultImage;
+                    front.appendChild(frontImg);
+                    
+                    // Create back face
+                    let back = document.createElement('div');
+                    back.classList.add('flip-card-back');
+                    let backImg = document.createElement('img');
+                    backImg.src = imagePath + pairs[i];
+                    back.appendChild(backImg);
+                    
+                    // Assemble the card
+                    inner.appendChild(front);
+                    inner.appendChild(back);
+                    container.appendChild(inner);
+                    
+                    // Add to game container
+                    game_container.appendChild(container);
+                    container.onclick = createClickHandler(container, pairs[i]);
+                }
+            }
+
+            // Initialize the game with default settings
+            initializeGame();
+
+            document.getElementById('button_playagain').onclick = function(event) {
+                matches = 0;
+                timeElapsed = 0;
+                isProcessingClick = false;
+                
+                if (timeInterval) {
+                    clearInterval(timeInterval);
+                }
+                
+                game_container.innerHTML = '';
+                highScoreForm.classList.add('hidden');
+                
+                initializeGame();
+                
+                panel_gameover.classList.add('hidden');
+                panel_game.classList.remove('hidden');
+                
+                timer.innerText = 'Time elapsed: 0';
+                timeInterval = setInterval(function() {
+                    // Only increment if game is still active
+                    if (timeInterval) {
+                        timeElapsed++;
+                        timer.innerText = 'Time elapsed: ' + timeElapsed;
+                    }
+                }, 1000);
+            }
+
+        </script>
+    </body>
+</html>
