@@ -136,10 +136,10 @@
 
         <!-- audio elements for correct and wrong sounds -->
         <audio id="wrong">
-            <source src="assignment06_images/wrong.wav" type="audio/wav">
+            <source src="pokemon/wrong.wav" type="audio/wav">
         </audio>
         <audio id="correct">
-            <source src="assignment06_images/correct.wav" type="audio/wav">
+            <source src="pokemon/correct.wav" type="audio/wav">
         </audio>
 
 
@@ -380,8 +380,8 @@
                 
                 // Select the appropriate asset set based on game mode
                 const assetSet = currentGameMode === 'pokemon' ? pokemonAssets : gemAssets;
-                const imagePath = currentGameMode === 'pokemon' ? 'assignment06_images/' : 'assignment06_images/su/';
-                const defaultImage = currentGameMode === 'pokemon' ? 'assignment06_images/pokeball.png' : 'assignment06_images/su/shield.png';
+                const imagePath = currentGameMode === 'pokemon' ? 'pokemon/' : 'pokemon/su/';
+                const defaultImage = currentGameMode === 'pokemon' ? 'pokemon/pokeball.png' : 'pokemon/su/shield.png';
                 
                 // Create a fresh copy of assets for each game
                 const availableAssets = [...assetSet];
